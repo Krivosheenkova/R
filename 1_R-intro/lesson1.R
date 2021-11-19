@@ -125,5 +125,57 @@ print("Add another 2 values to the end of the sequence (NA and NA):")
 length(z) <- 8
 print(z)
 
+# All objects in R have a class, reported by the function class.
+# For simple vectors this is just the mode ("numeric", "logical", "character" or "list")
+# but "matrix", "array", "factor" and "data.frame" are other possible values.
+# A currently complete list of class methods can be got using methods() func.
+cat("Complete list of data.frame methods:",
+     methods(class="data.frame"))
 
+# Creating ordered and unordered factors
+### A factor is a vector object used to specify a discrete classification (grouping)
+### of the components of other vectors of the same length
+
+# select categorical feature from iris dataset and get the factor
+library(iris)
+species <- iris$Species
+species.factor <- factor(species) # returns species vector and its distinct vals
+species.ord <- ordered(species) # it will be alphabetical order as in prev example
+### factor() can use optional params: levels, labels, ordered, exclude 
+cat("iris$Species unordered factor levels:", 
+    levels(species.factor))
+
+
+# Calculate the sample mean Sepal.Length for each of species
+# using tapply() func (which is used for applying functions)
+sepal.length.mean <- tapply(iris$Sepal.Length, species.factor, mean)
+sepal.width.mean <- tapply(iris$Sepal.Width, species.factor, mean)
+cat("Sepal.Length mean by Species:\n\t")
+print(sepal.length.mean)
+cat("Sepal.Width mean by Species:\n\t")
+print(sepal.width.mean)
+
+# Calculate the sample standard deviation with userfunc
+std <- function(x) sqrt(sum((x - mean(x))^2) / (length(x) - 1)) # built-in func: sd()
+cat("Standard Deviation of Petal Length =", std(iris$Petal.Length))
+
+# Calculate the confidence interval
+ci <- function(x, coef) {
+  n <- length(x)
+  m <- mean(x)
+  stddev <- std(x)
+  margin <- qt(coef, df=n-1)*stddev / sqrt(n)
+  
+  low <- m - margin
+  high <- m + margin
+  
+  outdata <- data.frame(n=n, 
+                        mean=m, 
+                        sd=round(stddev, digits=3),
+                        lower=round(low, digits=3), 
+                        upper=round(high, digits=3))
+  return(outdata)
+}
+
+ci(iris$Petal.Length, 0.95)
 
